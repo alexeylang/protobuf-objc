@@ -38,7 +38,6 @@ const int32_t BUFFER_SIZE = 4096;
 @synthesize input;
 
 - (void) dealloc {
-  [input close];
   self.buffer = nil;
   self.input = nil;
 
