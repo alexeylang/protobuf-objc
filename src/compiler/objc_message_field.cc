@@ -35,7 +35,7 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
         (*variables)["classname"] = ClassName(descriptor->containing_type());
         (*variables)["name"] = name;
         (*variables)["capitalized_name"] = UnderscoresToCapitalizedCamelCase(descriptor);
-        (*variables)["list_name"] = UnderscoresToCamelCase(descriptor) + "Array";
+        (*variables)["list_name"] = "_" + UnderscoresToCamelCase(descriptor) + "Array";
         (*variables)["number"] = SimpleItoa(descriptor->number());
         (*variables)["type"] = ClassName(descriptor->message_type());
         if (IsPrimitiveType(GetObjectiveCType(descriptor))) {
@@ -290,7 +290,7 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
 
 
   void RepeatedMessageFieldGenerator::GeneratePropertyHeader(io::Printer* printer) const {
-    printer->Print(variables_, "@property (readonly, retain) PBArray * $name$;\n");
+    printer->Print(variables_, "@property (readonly, retain) PBArray * $name$Array;\n");
   }
 
 
@@ -302,7 +302,7 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
 
   void RepeatedMessageFieldGenerator::GenerateSynthesizeSource(io::Printer* printer) const {
     printer->Print(variables_, "@synthesize $list_name$;\n");
-    printer->Print(variables_, "@dynamic $name$;\n");
+    printer->Print(variables_, "@dynamic $name$Array;\n");
   }
 
 
@@ -323,6 +323,9 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
 
   void RepeatedMessageFieldGenerator::GenerateMembersSource(io::Printer* printer) const {
     printer->Print(variables_,
+      "- (PBArray *)$name$Array {\n"
+      "  return $list_name$;\n"
+      "}\n"
       "- (PBArray *)$name$ {\n"
       "  return $list_name$;\n"
       "}\n"
@@ -334,7 +337,7 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
 
   void RepeatedMessageFieldGenerator::GenerateBuilderMembersHeader(io::Printer* printer) const {
     printer->Print(variables_,
-      "- (PBAppendableArray *)$name$;\n"
+      "- (PBAppendableArray *)$name$Array;\n"
       "- ($storage_type$)$name$AtIndex:(NSUInteger)index;\n"
       "- ($classname$_Builder *)add$capitalized_name$:($storage_type$)value;\n"
       "- ($classname$_Builder *)set$capitalized_name$Array:(NSArray *)array;\n"
@@ -344,7 +347,7 @@ namespace google { namespace protobuf { namespace compiler { namespace objective
 
   void RepeatedMessageFieldGenerator::GenerateBuilderMembersSource(io::Printer* printer) const {
     printer->Print(variables_,
-      "- (PBAppendableArray *)$name$ {\n"
+      "- (PBAppendableArray *)$name$Array {\n"
       "  return result.$list_name$;\n"
       "}\n"
       "- ($storage_type$)$name$AtIndex:(NSUInteger)index {\n"
