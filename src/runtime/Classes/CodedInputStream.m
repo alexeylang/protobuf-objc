@@ -594,6 +594,10 @@ const int32_t BUFFER_SIZE = 4096;
   }
 }
 
+- (BOOL) isAtBufferEnd {
+    return bufferPos == bufferSize;
+}
+
 
 /**
  * Read one byte from the input.

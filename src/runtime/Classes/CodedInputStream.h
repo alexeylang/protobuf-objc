@@ -68,7 +68,7 @@
  */
 - (int32_t) readTag;
 - (BOOL) refillBuffer:(BOOL) mustSucceed;
-
+- (BOOL) isAtBufferEnd;
 - (Float64) readDouble;
 - (Float32) readFloat;
 - (int64_t) readUInt64;
