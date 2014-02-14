@@ -180,21 +180,38 @@ static PBArrayValueTypeInfo PBValueTypes[] =
 
 - (NSUInteger)countByEnumeratingWithState:(NSFastEnumerationState *)state objects:(id *)stackbuf count:(NSUInteger)len
 {
-	// TODO: We only support enumeration of object values.  In the future, we
-	// can extend this code to return a new list of NSNumber* objects wrapping
-	// our primitive values.
-	PBArrayValueTypeAssert(PBArrayValueTypeObject);
+    if ( _valueType == PBArrayValueTypeObject )
+    {
+        if (state->state >= _count)
+        {
+            return 0; // terminate iteration
+        }
 
-	if (state->state >= _count)
-	{
-		return 0; // terminate iteration
-	}
+        state->itemsPtr = (id *)_data;
+        state->state = _count;
+        state->mutationsPtr = (unsigned long *)self;
 
-	state->itemsPtr = (id *)_data;
-	state->state = _count;
-	state->mutationsPtr = (unsigned long *)self;
-
-	return _count;
+        return _count;
+    }
+    else
+    {
+        NSMutableArray *array = [NSMutableArray arrayWithCapacity:_count];
+        for (int i = 0; i < _count; i++)
+        {
+            switch (_valueType)
+            {
+                case PBArrayValueTypeBool: [array addObject:@([self boolAtIndex:i])]; break;
+                case PBArrayValueTypeInt32: [array addObject:@([self int32AtIndex:i])]; break;
+                case PBArrayValueTypeUInt32: [array addObject:@([self uint32AtIndex:i])]; break;
+                case PBArrayValueTypeInt64: [array addObject:@([self int64AtIndex:i])]; break;
+                case PBArrayValueTypeUInt64: [array addObject:@([self uint64AtIndex:i])]; break;
+                case PBArrayValueTypeFloat: [array addObject:@([self floatAtIndex:i])]; break;
+                case PBArrayValueTypeDouble: [array addObject:@([self doubleAtIndex:i])]; break;
+                default: break;
+            }
+        }
+        return [array countByEnumeratingWithState:state objects:stackbuf count:len];
+    }
 }
 
 - (id)objectAtIndex:(NSUInteger)index
